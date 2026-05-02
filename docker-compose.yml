@@ -1,0 +1,9 @@
+services:
+  web:
+    image: ${DOCKER_USER}/hendi-simple-social-media
+    ports:
+      - "8000:8000"
+
+
+
+
