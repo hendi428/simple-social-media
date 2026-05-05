@@ -1,5 +1,6 @@
 FROM ubuntu:22.04
 
+# Install packages
 RUN apt update -y && \
     DEBIAN_FRONTEND=noninteractive apt install -y \
     nginx \
@@ -15,14 +16,11 @@ RUN apt update -y && \
     curl && \
     rm -rf /var/lib/apt/lists/*
 
-# Start PHP-FPM
-RUN service php8.1-fpm start
-
 # Copy aplikasi
 COPY . /var/www/html/
 
-# Copy startup script
-COPY startup.sh /startup.sh
-RUN chmod +x /startup.sh
+# Expose port
+EXPOSE 80
 
-CMD ["/startup.sh"]
+# Jalankan service saat container running
+CMD service php8.1-fpm start && nginx -g "daemon off;"
