@@ -1,6 +1,10 @@
 FROM ubuntu:22.04
 
-# Install packages
+# Ganti repository ke mirror UGM (Indonesia)
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://repo.ugm.ac.id/ubuntu|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com/ubuntu|http://repo.ugm.ac.id/ubuntu|g' /etc/apt/sources.list
+
+# Install packages (sekarang pakai mirror UGM)
 RUN apt update -y && \
     DEBIAN_FRONTEND=noninteractive apt install -y \
     nginx \
@@ -22,5 +26,5 @@ COPY . /var/www/html/
 # Expose port
 EXPOSE 80
 
-# Jalankan service saat container running
+# Jalankan service
 CMD service php8.1-fpm start && nginx -g "daemon off;"
