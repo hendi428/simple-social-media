@@ -1,30 +1,20 @@
-FROM ubuntu:22.04
+FROM php:8.2-fpm-alpine
 
-# Ganti repository ke mirror UGM (Indonesia)
-RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://repo.ugm.ac.id/ubuntu|g' /etc/apt/sources.list && \
-    sed -i 's|http://security.ubuntu.com/ubuntu|http://repo.ugm.ac.id/ubuntu|g' /etc/apt/sources.list
+# Install extension pendukung
+RUN docker-php-ext-install pdo pdo_mysql
 
-# Install packages (sekarang pakai mirror UGM)
-RUN apt update -y && \
-    DEBIAN_FRONTEND=noninteractive apt install -y \
-    nginx \
-    php8.1-fpm \
-    php8.1-xml \
-    php8.1-mbstring \
-    php8.1-curl \
-    php8.1-mysql \
-    php8.1-gd \
-    php8.1-cli \
-    unzip \
-    nano \
-    curl && \
-    rm -rf /var/lib/apt/lists/*
+# Install Composer secara otomatis
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy aplikasi
-COPY . /var/www/html/
+WORKDIR /var/www/html
+COPY . .
 
-# Expose port
-EXPOSE 80
+# Install dependensi Laravel (PENTING)
+RUN composer install --no-dev --optimize-autoloader
 
-# Jalankan service
-CMD service php8.1-fpm start && nginx -g "daemon off;"
+RUN cp .env.example .env || true
+RUN php artisan key:generate || true
+RUN chmod -R 777 storage bootstrap/cache
+
+# Sesuaikan port dengan gambar panduanmu (8000)
+CMD php artisan serve --host=0.0.0.0 --port=8000
